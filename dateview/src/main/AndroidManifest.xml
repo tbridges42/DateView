@@ -1,9 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="us.bridgeses.dateview_demo">
+    package="us.bridgeses.dateview">
 
-    <application android:allowBackup="true"
-        android:supportsRtl="true">
-
-    </application>
 
 </manifest>
