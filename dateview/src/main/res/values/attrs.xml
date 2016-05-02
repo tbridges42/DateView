@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DateView">
+        <attr name="dateview_date_format_str" format="string" />
+        <attr name="dateview_date_format" format="enum">
+            <enum name="dateview_short" value="3" />
+            <enum name="dateview_medium" value="2" />
+            <enum name="dateview_long" value="1" />
+            <enum name="dateview_full" value="0" />
+            <enum name="dateview_none" value = "-1" />
+        </attr>
+        <attr name="dateview_time_format" format="enum">
+            <enum name="dateview_short" value="3" />
+            <enum name="dateview_medium" value="2" />
+            <enum name="dateview_long" value="1" />
+            <enum name="dateview_full" value="0" />
+            <enum name="dateview_none" value = "-1" />
+        </attr>
+        <attr name="dateview_locale" format="string" />
+        <attr name="dateview_none_string" format="string" />
+    </declare-styleable>
+</resources>
