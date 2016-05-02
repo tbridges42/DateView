@@ -162,7 +162,12 @@ public class DateView extends TextView {
     }
 
     public void setDate(Date time) {
-        setText(format.format(time));
+        if (time == null) {
+            setText(noneString);
+        }
+        else {
+            setText(format.format(time));
+        }
     }
 
     public Locale getLocale() {
