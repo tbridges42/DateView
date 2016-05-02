@@ -18,7 +18,7 @@ import java.util.Locale;
  *
  * This is a simple extension of {@link TextView} to make displaying and setting dates easier.
  * Use setDate to set the date either in milliseconds or {@link Date}. It will be displayed
- * according to the {@ink DateFormat} set either in xml or through setFormat
+ * according to the {@link DateFormat} set either in xml or through setFormat
  */
 public class DateView extends TextView {
 
