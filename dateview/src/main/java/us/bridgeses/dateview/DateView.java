@@ -2,7 +2,6 @@ package us.bridgeses.dateview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.nfc.FormatException;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.TextView;
@@ -11,27 +10,44 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.IllformedLocaleException;
 import java.util.Locale;
-import java.util.concurrent.Exchanger;
 
 
 /**
  * Created by Tony on 4/27/2016.
+ *
+ * This is a simple extension of {@link TextView} to make displaying and setting dates easier.
+ * Use setDate to set the date either in milliseconds or {@link Date}. It will be displayed
+ * according to the {@ink DateFormat} set either in xml or through setFormat
  */
 public class DateView extends TextView {
 
     private DateFormat format;
     private String noneString;
-    private Locale locale = Locale.US;
+    private Locale locale;
 
+    /**
+     * Xtor
+     * @param context The context in which the view is displayed
+     * @param attr A set of attributes set through XML:
+     *             dateview_date_format_str: If this is set, the format will be a SimpleDateFormat
+     *                                       using the specified format. This setting overrides
+     *                                       dateview_date_format and dateview_time_format
+     *             dateview_date_format: Set how the date portion of the date and time is displayed.
+     *                                   The values correspond to the constants in {@link DateFormat}
+     *             dateview_time_format: Same as date format, but for the time portion.
+     *             dateview_locale: Set the locale using a BCP 47 language tag. Null or invalid
+     *                              tags will use the system default.
+     *             dateview_none_string: Set the string displayed if the date is null or less than
+     *                                   epoch. This is a convenience for date fields that are optional
+     */
     public DateView(Context context, AttributeSet attr) {
         super(context, attr);
         TypedArray array = context.getTheme().obtainStyledAttributes(attr,
                 R.styleable.DateView, 0, 0);
         // TODO: This is kind of hideous. Clean it up
         try {
-            locale = getLocale(array);
+            locale = fetchLocale(array);
             // Attempt to get format string from xml
             String formatString = array.getString(R.styleable.DateView_dateview_date_format_str);
             if (formatString != null) {
@@ -41,13 +57,13 @@ public class DateView extends TextView {
             }
             else {
                 // If format string is not specified, attempt to get the format from xml
-                format = getDateFormat(array);
+                format = fetchDateFormat(array);
             }
             // Attempt to get none string from xml
             noneString = array.getString(R.styleable.DateView_dateview_none_string);
             if (noneString == null) {
                 // If no none string specified in xml, attempt to get from app resources
-                noneString = getParentResource(context);
+                noneString = fetchParentResource(context);
             }
             if (noneString == null) {
                 // If no none string specified in xml or app resources, use from library resources
@@ -59,7 +75,7 @@ public class DateView extends TextView {
         }
     }
 
-    private Locale getLocale(TypedArray array) {
+    private Locale fetchLocale(TypedArray array) {
         String localeCode = array.getString(R.styleable.DateView_dateview_locale);
         if (localeCode == null) {
             return Locale.getDefault();
@@ -82,22 +98,22 @@ public class DateView extends TextView {
         return Locale.getDefault();
     }
 
-    private DateFormat getDateFormat(TypedArray array) {
+    private DateFormat fetchDateFormat(TypedArray array) {
         int dateLength = array.getInt(R.styleable.DateView_dateview_date_format, -1);
         int timeLength = array.getInt(R.styleable.DateView_dateview_time_format, -1);
         if (dateLength < 0 && timeLength < 0) {
             return DateFormat.getDateTimeInstance();
         }
         if (dateLength < 0) {
-            return DateFormat.getTimeInstance(timeLength, getLocale(array));
+            return DateFormat.getTimeInstance(timeLength, locale);
         }
         if (timeLength < 0) {
-            return DateFormat.getDateInstance(dateLength, getLocale(array));
+            return DateFormat.getDateInstance(dateLength, locale);
         }
-        return DateFormat.getDateTimeInstance(dateLength, timeLength, getLocale(array));
+        return DateFormat.getDateTimeInstance(dateLength, timeLength, locale);
     }
 
-    private String getParentResource(Context context) {
+    private String fetchParentResource(Context context) {
         try {
             int id = context.getResources()
                     .getIdentifier("none", "string", context.getPackageName());
@@ -121,7 +137,18 @@ public class DateView extends TextView {
         catch (ParseException e) {
             this.format = format;
         }
-        this.format = format;
+    }
+
+    public void setFormat(String formatString) {
+        try {
+            Date date;
+            date = format.parse(getText().toString());
+            this.format = new SimpleDateFormat(formatString, locale);
+            setDate(date);
+        }
+        catch (ParseException e) {
+            this.format = new SimpleDateFormat(formatString, locale);
+        }
     }
 
     public void setDate(long millis) {
@@ -136,5 +163,17 @@ public class DateView extends TextView {
 
     public void setDate(Date time) {
         setText(format.format(time));
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public String getNoneString() {
+        return noneString;
+    }
+
+    public DateFormat getFormat() {
+        return format;
     }
 }
